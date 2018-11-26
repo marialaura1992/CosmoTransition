@@ -103,7 +103,7 @@ def DF(alpha):
     return(result)
 
 
-alpha = np.linspace(-10, 10, 5000)
+alpha = np.linspace(-20, 20, 10000)
 fa = Functional(alpha)
 
 

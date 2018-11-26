@@ -1,0 +1,14 @@
+from cosmoTransitions.tunneling1D import SingleFieldInstanton
+import matplotlib.pyplot as plt
+
+
+def V2(phi): return 0.25*phi**4 - 0.4*phi**3 + 0.1 * phi**2
+def dV2(phi): return phi*(phi-.2)*(phi-1)
+phi = np.arange(0, 1.4, 0.1)
+plt.plot(phi, V2(phi), label = 'thick')
+print(SingleFieldInstanton(1.0, 0.0, V2, dV2).findBarrierLocation())
+print(SingleFieldInstanton(1.0, 0.0, V2, dV2).dV_from_absMin(0.1))
+plt.legend()
+plt.xlabel(r"Field $\phi$")
+plt.ylabel(r"Potential $V(\phi)$")
+plt.show()
