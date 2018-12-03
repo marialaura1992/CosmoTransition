@@ -1,5 +1,6 @@
 from __future__ import division 
 import numpy as np
+from sympy import *
 import math
 import scipy as sp
 from scipy.optimize import fmin
@@ -15,8 +16,7 @@ from matplotlib import rc
 #V(\phi)= \lambda/4 * (\phi**2 - v**2)**2
 # with v = \mu/\sqrt(\lambda)
 
-'''
-v = 240
+v = 1
 
 def Phi(rho, alpha):
     return v * (1 - np.tanh(rho/alpha)) 
@@ -36,21 +36,51 @@ def DV(rho, alpha):
 
 def EOM2(rho, alpha):
     res = D2Phi(rho, alpha) + (2/rho) * DPhi(rho, alpha) - DV(rho, alpha)
-    return(rho**2 * np.abs(res)**2)
+    return(4*np.pi * rho**2 * np.abs(res)**2)
 
 
 def Functional(alpha):
     res = np.array([])
     result = np.array([])
     for alpha in alpha:
-        res = np.append(res, integrate.quad(EOM2, 0.01, 1000, args = alpha))
+        res = np.append(res, integrate.quad(EOM2, 0.1, 50, args = alpha))
     for i in range(len(res)):
         if i % 2 == 0:
             result = np.append(result, res[i])
     return(result)
+
+
+alpha = np.linspace(-0.01, 10, 100)
+fa = Functional(alpha)
+
+
+#Analytic function to be fitted to the Functional
+
+def analytic(alpha, a, b, c, d, e):
+    poly = a*alpha**4 + b*alpha**3 +\
+           c*alpha**2 + d*alpha + e
+    return poly
+
+
+p0 = np.array([0,0,0,0,0])
+#fit = sp.optimize.curve_fit(analytic, alpha, fa, p0)
+
+
+def f(alpha):
+    return analytic(alpha, *fit[0])
+
+#opt = sp.optimize.minimize(f, [10])
+#print(opt)
+
+plt.plot(alpha, Functional(alpha), label = 'analytic')
+#plt.plot(alpha, analytic(alpha, *fit[0]), label = 'fit')
+plt.xlabel('alpha')
+plt.ylabel('F(alpha)')
+plt.legend()
+plt.show()
+
+
 '''
-
-
 #Armonic oscillator with frequency**2 = 4
 #Ansatz solution is Phi = cos(alpha * rho)
 #where alpha is the parameter to be optimized
@@ -74,7 +104,7 @@ def Functional(alpha):
     res = np.array([])
     result = np.array([])
     for alpha in alpha:
-        res = np.append(res, integrate.quad(EOM, 0., 100, args = alpha))
+        res = np.append(res, integrate.quad(EOM, 0., 50, args = alpha))
     for i in range(len(res)):
         if i % 2 == 0:
             result = np.append(result, res[i])
@@ -96,14 +126,14 @@ def DF(alpha):
     result = np.array([])
     for alpha in alpha:
         res = np.append(res, integrate.quad(DalphaIntegrand,\
-                                            0, 1000, args = alpha))
+                                            0, 100, args = alpha))
     for i in range(len(res)):
         if i % 2 == 0:
             result = np.append(result, res[i])
     return(result)
 
 
-alpha = np.linspace(-10, 10, 5000)
+alpha = np.linspace(-10, 10, 1000)
 fa = Functional(alpha)
 
 
@@ -116,30 +146,21 @@ def analytic(alpha, a, b, c, d, e):
 
 
 p0 = np.array([0,0,0,0,0])
-
-
 fit = sp.optimize.curve_fit(analytic, alpha, fa, p0)
-#newfit = np.polyfit(alpha, fa, 4)
-#print(newfit)
-#print(fit[0])
+
 
 def f(alpha):
     return analytic(alpha, *fit[0])
 
-#def fnew(alpha):
-#    return analytic(alpha, *newfit)
-
-#print(f(2))
-
 opt = sp.optimize.minimize(f, [10])
-#newopt = sp.optimize.minimize(fnew, [0])
 print(opt)
-#alpha_ = np.arange(-10, 10, 0.1)
+
 plt.plot(alpha, Functional(alpha))
 plt.plot(alpha, analytic(alpha, *fit[0]))
-#plt.ylim(100, 300)
-#plt.plot(alpha, analytic(alpha, *newfit))
 plt.show()
+
+
+'''
 
 
 # 3D PLOTS
