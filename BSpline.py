@@ -41,7 +41,7 @@ def Bsplined2(x, t, k):
 
 
 x = np.linspace(0.0, 50, 100)
-t = [0.1, 0.1, 10, 15, 40, 50, 50]
+t = [0.1, 0.1, 10, 20, 50, 50]
 
 #Define the field Phi as
 #a superposition of Bsplines plus
@@ -106,20 +106,16 @@ def Functional(parameters):
     return(result)
 
 
-x = np.zeros((5,50))
+X = np.zeros((len(t)-4, 50))
 for i in range(len(x)):
-    x[i] = np.linspace(0, 10, 50)
+    X[i] = np.linspace(0, 10, 50)
 
 
-cartesian_prod = [np.array([a,b,c,d,e]) for a in x[0] for b in x[1]\
-                  for c in x[2] for d in x[3] for e in x[4]]
+cartesian_prod = [np.array([a,b]) for a in X[0] for b in X[1]]
+y = Functional(cartesian_prod)
+pol = np.polyfit(cartesian_prod, y, 6)
+print(pol)
 
-    
-print(cartesian_prod.shape)
-
-
-#y = Functional(x)
-#pol = np.polyfit(x, y, 6)
 
 #opt = sp.optimize.minimize(Functional, [1, 1, 1, 1, 1])
 #print(opt)
