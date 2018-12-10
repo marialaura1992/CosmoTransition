@@ -41,15 +41,15 @@ def Bsplined2(x, t, k):
 
 
 x = np.linspace(0.0, 50, 100)
-t = [0.1, 0.1, 0.1, 10, 15, 40, 50, 50, 50]
-parameters = np.array([[1, 10, 5, 5, 1], [3,4,5,6,7], [5,7,8,3,6]])
-
+t = [0.1, 0.1, 10, 15, 40, 50, 50]
 
 #Define the field Phi as
 #a superposition of Bsplines plus
 #plus a linear contribution
 #in order to have Phi(0)=Phi_true
 #and Phi(x_bar)=Phi_false
+
+#print(len(Bsplined2(x,t,3)[0][1]))
 
 def Phi(x, parameters):
     res = 0
@@ -68,15 +68,100 @@ def Phi(x, parameters):
     return res
 
 
+#Try to solve the equation for the bouble.
+
+def DPhi(x, parameters):
+    res = 0
+    for basis, coeff in zip(Bsplined2(x,t,3)[1].T, parameters):
+        res += coeff * basis
+    return res
+
+
+def D2Phi(x, parameters):
+    res = 0
+    for basis, coeff in zip(Bsplined2(x,t,3)[2].T, parameters):
+        res += coeff * basis
+    return res
+
+v = 1
+
+
+def DV(x, parameters):
+    return(Phi(x, parameters) * (Phi(x, parameters)**2 - v**2))
+
+
+def EOM2(x, parameters):
+    res = D2Phi(x, parameters) + (2/x) * DPhi(x, parameters) - DV(x, parameters)
+    return(4*np.pi * x**2 * np.abs(res)**2)
+
+
+def Functional(parameters):
+    res = np.array([])
+    result = np.array([])
+    for parameters in parameters:
+        res = np.append(res, integrate.quad(EOM2, 0.1, 50, args = parameters))
+    for i in range(len(res)):
+        if i % 2 == 0:
+            result = np.append(result, res[i])
+    return(result)
+
+
+x = np.zeros((5,50))
+for i in range(len(x)):
+    x[i] = np.linspace(0, 10, 50)
+
+
+cartesian_prod = [np.array([a,b,c,d,e]) for a in x[0] for b in x[1]\
+                  for c in x[2] for d in x[3] for e in x[4]]
+
+    
+print(cartesian_prod.shape)
+
+
+#y = Functional(x)
+#pol = np.polyfit(x, y, 6)
+
+#opt = sp.optimize.minimize(Functional, [1, 1, 1, 1, 1])
+#print(opt)
+
+#print(integral([*opt['x']]))
+
+
+#parameters = np.array([1,1,1,1,1])
+
+#print(Functional(parameters))
+
+
+
+'''
+plt.plot(x, Phi(x, [*opt['x']]))
+plt.plot(x, DPhi(x, [*opt['x']]))
+plt.plot(x, D2Phi(x, [*opt['x']]))
+plt.show()
+'''
+
+
+
+'''
 #Make the plot.
 rc('font',**{'family':'serif','serif':['Palatino']})
 rc('text', usetex=True)
-plt.plot(x, Phi(x, parameters[0]), label = '$coeff: {}$'.format(parameters[0]))
+plt.plot(x, Phi(x, [*opt['x']]), label = '$coeff: {}$'.format(parameters[0]))
 plt.ylabel('$\phi(x)$')
 plt.xlabel('$x$')
 plt.legend()
 plt.show()
 
+
 def integral(parameters):
     integral = integrate.quad(Phi, 0, 10, args = parameters)
     return integral[0]
+
+
+opt = sp.optimize.minimize(integral, [1, 1, 1, 1, 1])
+
+
+print(integral([*opt['x']]))
+'''
+
+
